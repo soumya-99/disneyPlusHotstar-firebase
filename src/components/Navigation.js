@@ -1,12 +1,36 @@
 import styled from "styled-components"
+import { useDispatch, useSelector } from "react-redux"
+import { useHistory } from "react-router-dom"
 import { auth, provider } from "../firebase"
+import {
+	selectUserName,
+	selectUserPhoto,
+	setUserLoginDetails,
+} from "../features/user/userSlice"
 
 function Navigation() {
+	const dispatch = useDispatch()
+	const history = useHistory()
+	const userName = useSelector(selectUserName)
+	const userPhoto = useSelector(selectUserPhoto)
+
 	const handleAuth = () => {
 		auth
 			.signInWithPopup(provider)
-			.then((result) => console.log(result))
+			.then((result) => {
+				setUser(result.user)
+			})
 			.catch((error) => alert(error.message))
+	}
+
+	const setUser = (user) => {
+		dispatch(
+			setUserLoginDetails({
+				name: user.displayName,
+				email: user.email,
+				photo: user.photoURL,
+			})
+		)
 	}
 
 	return (
@@ -14,33 +38,40 @@ function Navigation() {
 			<Logo>
 				<img src="/images/logo.svg" alt="Disney+" />
 			</Logo>
-			<NavMenu>
-				<a href="/home">
-					<img src="/images/home-icon.svg" alt="HOME" />
-					<span>HOME</span>
-				</a>
-				<a href="/bla-bla">
-					<img src="/images/search-icon.svg" alt="SEARCH" />
-					<span>SEARCH</span>
-				</a>
-				<a href="/bla-bla">
-					<img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
-					<span>WATCHLIST</span>
-				</a>
-				<a href="/bla-bla">
-					<img src="/images/original-icon.svg" alt="ORIGINALS" />
-					<span>ORIGINALS</span>
-				</a>
-				<a href="/bla-bla">
-					<img src="/images/movie-icon.svg" alt="MOVIES" />
-					<span>MOVIES</span>
-				</a>
-				<a href="/bla-bla">
-					<img src="/images/series-icon.svg" alt="SERIES" />
-					<span>SERIES</span>
-				</a>
-			</NavMenu>
-			<SignIn onClick={handleAuth}>LOGIN</SignIn>
+
+			{!userName ? (
+				<SignIn onClick={handleAuth}>LOGIN</SignIn>
+			) : (
+				<>
+					<NavMenu>
+						<a href="/home">
+							<img src="/images/home-icon.svg" alt="HOME" />
+							<span>HOME</span>
+						</a>
+						<a href="/bla-bla">
+							<img src="/images/search-icon.svg" alt="SEARCH" />
+							<span>SEARCH</span>
+						</a>
+						<a href="/bla-bla">
+							<img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
+							<span>WATCHLIST</span>
+						</a>
+						<a href="/bla-bla">
+							<img src="/images/original-icon.svg" alt="ORIGINALS" />
+							<span>ORIGINALS</span>
+						</a>
+						<a href="/bla-bla">
+							<img src="/images/movie-icon.svg" alt="MOVIES" />
+							<span>MOVIES</span>
+						</a>
+						<a href="/bla-bla">
+							<img src="/images/series-icon.svg" alt="SERIES" />
+							<span>SERIES</span>
+						</a>
+					</NavMenu>
+					<UserImg src={userPhoto} alt={userName} />
+				</>
+			)}
 		</Nav>
 	)
 }
@@ -149,6 +180,10 @@ const SignIn = styled.a`
 		color: #000;
 		border-color: transparent;
 	}
+`
+
+const UserImg = styled.img`
+	height: 100%;
 `
 
 export default Navigation
